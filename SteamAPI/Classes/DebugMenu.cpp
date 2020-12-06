@@ -12,15 +12,20 @@ void DrawMainDebugMenu()
 	ImGui::Begin("Main Debug Menu");
 
 	//Handle the list of friends
-	static std::pair<CSteamID, std::string> currentItemFriendList(CSteamID(), "");
+	static std::pair<CSteamID, std::string> currentItemFriendList(CSteamID(), "Select a friend");
 	std::vector<std::pair<CSteamID, std::string>>& friendList = popGetFriendsManager()->GetFriendList();
 
-	if (ImGui::BeginCombo("##combo", currentItemFriendList.second.c_str()))
+	std::stringstream hinStringStream;
+	hinStringStream << currentItemFriendList.second << " - " << currentItemFriendList.first.ConvertToUint64();
+
+	if (ImGui::BeginCombo("##combo", hinStringStream.str().c_str()))
 	{
-		for (const auto friendInfo : friendList)
+		for (auto friendInfo : friendList)
 		{
 			bool is_selected = (currentItemFriendList.first == friendInfo.first);
-			if (ImGui::Selectable(friendInfo.second.c_str(), is_selected))
+			std::stringstream stringStream;
+			stringStream << friendInfo.second << " - " << friendInfo.first.ConvertToUint64();
+			if (ImGui::Selectable(stringStream.str().c_str(), is_selected))
 				currentItemFriendList = friendInfo;
 			if (is_selected)
 				ImGui::SetItemDefaultFocus();
@@ -52,12 +57,12 @@ void DrawLobbyDebugMenu()
 	ImGui::Begin("Lobby Debug Menu");
 
 	//Show current lobby id
-	std::stringstream  stringStream;
+	std::stringstream stringStream;
 	stringStream << "Current lobby id: " << popGetLobbyManager()->GetCurrentLobby().ConvertToUint64();
 	ImGui::Text(stringStream.str().c_str());
 
 	//Leave current lobby
-	if (ImGui::Button("Leave lobby"))
+	if (popGetLobbyManager()->IsCurrentLobbyValid() && ImGui::Button("Leave lobby"))
 	{
 		popGetLobbyManager()->LeaveCurrentLobby();
 	}
@@ -75,6 +80,7 @@ void DrawLobbyDebugMenu()
 		static int R;
 		static int G;
 		static int B;
+
 		ImGui::SliderInt("Red", &R, 0, 255);
 		ImGui::SliderInt("Green", &G, 0, 255);
 		ImGui::SliderInt("Blue", &B, 0, 255);
