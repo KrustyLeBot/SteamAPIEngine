@@ -6,6 +6,7 @@ FriendsManager::FriendsManager()
 
 FriendsManager::~FriendsManager()
 {
+	m_friendList.clear();
 }
 
 void FriendsManager::Update()
@@ -26,4 +27,9 @@ void FriendsManager::Update()
 		m_timer.Reset();
 		m_timer.Start();
 	}
+}
+
+bool FriendsManager::IsFriend(CSteamID playerId)
+{
+	return SteamFriends()->HasFriend(playerId, k_EFriendFlagImmediate);
 }

@@ -98,7 +98,7 @@
       <AdditionalLibraryDirectories>SteamAPI;SteamAPI\SFML\lib;SteamAPI\IMGUI;SteamAPI\GL;SteamAPI\Steam;SteamAPI\Classes;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d  "$(ProjectDir)steam_api.dll" "$(OutDir)"
+      <Command>xcopy /y /d  "$(ProjectDir)*.dll" "$(OutDir)"
 xcopy /y /d  "$(ProjectDir)steam_appid.txt" "$(OutDir)"
 xcopy /y /d  "$(ProjectDir)SFML\bin\*.dll" "$(OutDir)"
 echo R|xcopy /y /d /e /r "$(ProjectDir)Assets" "$(OutDir)Assets"
@@ -121,7 +121,7 @@ xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
       <AdditionalLibraryDirectories>SteamAPI;SteamAPI\SFML\lib;SteamAPI\IMGUI;SteamAPI\GL;SteamAPI\Steam;SteamAPI\Classes;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d  "$(ProjectDir)steam_api.dll" "$(OutDir)"
+      <Command>xcopy /y /d  "$(ProjectDir)*.dll" "$(OutDir)"
 xcopy /y /d  "$(ProjectDir)steam_appid.txt" "$(OutDir)"
 xcopy /y /d  "$(ProjectDir)SFML\bin\*.dll" "$(OutDir)"
 echo R|xcopy /y /d /e /r "$(ProjectDir)Assets" "$(OutDir)Assets"
@@ -144,6 +144,13 @@ xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d  "$(ProjectDir)*.dll" "$(OutDir)"
+xcopy /y /d  "$(ProjectDir)steam_appid.txt" "$(OutDir)"
+xcopy /y /d  "$(ProjectDir)SFML\bin\*.dll" "$(OutDir)"
+echo R|xcopy /y /d /e /r "$(ProjectDir)Assets" "$(OutDir)Assets"
+xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -161,12 +168,20 @@ xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d  "$(ProjectDir)*.dll" "$(OutDir)"
+xcopy /y /d  "$(ProjectDir)steam_appid.txt" "$(OutDir)"
+xcopy /y /d  "$(ProjectDir)SFML\bin\*.dll" "$(OutDir)"
+echo R|xcopy /y /d /e /r "$(ProjectDir)Assets" "$(OutDir)Assets"
+xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Classes\CpuTimer.h" />
     <ClInclude Include="Classes\DebugMenu.h" />
     <ClInclude Include="Classes\FriendsManager.h" />
     <ClInclude Include="Classes\LobbyManager.h" />
+    <ClInclude Include="Classes\NetworkManager.h" />
     <ClInclude Include="Classes\OnlineManager.h" />
     <ClInclude Include="GL\glut.h" />
     <ClInclude Include="IMGUI\imconfig.h" />
@@ -327,6 +342,7 @@ xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="Classes\DebugMenu.cpp" />
     <ClCompile Include="Classes\FriendsManager.cpp" />
     <ClCompile Include="Classes\LobbyManager.cpp" />
+    <ClCompile Include="Classes\NetworkManager.cpp" />
     <ClCompile Include="Classes\OnlineManager.cpp" />
     <ClCompile Include="IMGUI\imgui-SFML.cpp" />
     <ClCompile Include="IMGUI\imgui.cpp" />

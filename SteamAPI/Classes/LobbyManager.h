@@ -13,10 +13,15 @@ public:
 	bool IsCurrentLobbyValid();
 	CSteamID GetCurrentLobby() { return m_currentLobby; }
 	void InviteFriendToCurrentLobby(const CSteamID playerId);
-	void CreateLobby(const int place);
+	void LeaveCurrentLobby();
+
+	std::vector<std::string> GetCurrentLobbyPlayerNameList();
 
 	void OnLobbyCreated(LobbyCreated_t *pCallback, bool bIOFailure);
 	void OnLobbyJoined(LobbyEnter_t *pCallback, bool bIOFailure);
+
+private:
+	STEAM_CALLBACK_MANUAL(LobbyManager, HandleLobbyJoinRequested, GameLobbyJoinRequested_t, LobbyJoinRequestedCallback);
 
 private:
 	CSteamID m_currentLobby;

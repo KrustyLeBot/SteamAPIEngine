@@ -10,6 +10,7 @@ public:
 	~FriendsManager();
 
 	void Update() override;
+	bool IsFriend(CSteamID playerId);
 
 	std::vector<std::pair<CSteamID, std::string>>& GetFriendList() { return m_friendList; }
 

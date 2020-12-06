@@ -6,10 +6,13 @@ LobbyManager::LobbyManager()
 	m_currentLobby = CSteamID();
 	m_SteamCallResultLobbyCreated.Cancel();
 	m_SteamCallResultLobbyJoined.Cancel();
+
+	LobbyJoinRequestedCallback.Register(this, &LobbyManager::HandleLobbyJoinRequested);
 }
 
 LobbyManager::~LobbyManager()
 {
+	LobbyJoinRequestedCallback.Unregister();
 }
 
 void LobbyManager::Update()
@@ -48,6 +51,31 @@ void LobbyManager::InviteFriendToCurrentLobby(const CSteamID playerId)
 	}
 }
 
+void LobbyManager::LeaveCurrentLobby()
+{
+	if (IsCurrentLobbyValid())
+	{
+		SteamMatchmaking()->LeaveLobby(m_currentLobby);
+		m_currentLobby = CSteamID();
+	}
+}
+
+std::vector<std::string> LobbyManager::GetCurrentLobbyPlayerNameList()
+{
+	std::vector<std::string> playerNameList;
+	if (IsCurrentLobbyValid())
+	{
+		int lobbyPlayerCount = SteamMatchmaking()->GetNumLobbyMembers(m_currentLobby);
+		for (int index = 0; index < lobbyPlayerCount; index++)
+		{
+			CSteamID playerId = SteamMatchmaking()->GetLobbyMemberByIndex(m_currentLobby, index);
+			playerNameList.push_back(SteamFriends()->GetFriendPersonaName(playerId));
+		}
+		
+	}
+	return playerNameList;
+}
+
 void LobbyManager::OnLobbyCreated(LobbyCreated_t *pCallback, bool bIOFailure)
 {
 	if (pCallback->m_eResult == k_EResultOK)
@@ -71,5 +99,15 @@ void LobbyManager::OnLobbyJoined(LobbyEnter_t *pCallback, bool bIOFailure)
 			InviteFriendToCurrentLobby(playerId);
 		}
 		m_inviteBuffer.clear();
+	}
+}
+
+void LobbyManager::HandleLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
+{
+	if (pParam != nullptr)
+	{
+		OutputDebugString("Invite accepted through overlay\n");
+		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->JoinLobby(pParam->m_steamIDLobby);
+		m_SteamCallResultLobbyJoined.Set(hSteamAPICall, this, &LobbyManager::OnLobbyJoined);
 	}
 }

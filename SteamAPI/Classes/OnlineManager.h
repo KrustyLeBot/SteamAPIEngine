@@ -28,6 +28,7 @@ public:
 
 	static void DestoryAllManagers();
 
+public:
 	static std::unordered_map<std::string, void*> m_InstancePtrMap;
 
 protected:

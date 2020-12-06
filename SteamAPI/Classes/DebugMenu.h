@@ -2,4 +2,6 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-void DrawMenu();
+void DrawMainDebugMenu();
+
+void DrawLobbyDebugMenu();
