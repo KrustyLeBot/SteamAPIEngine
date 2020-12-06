@@ -14,15 +14,15 @@ void DrawMainDebugMenu()
 	static std::pair<CSteamID, std::string> currentItemFriendList(CSteamID(), "");
 	std::vector<std::pair<CSteamID, std::string>>& friendList = popGetFriendsManager()->GetFriendList();
 
-	if (ImGui::BeginCombo("##combo", currentItemFriendList.second.c_str())) // The second parameter is the label previewed before opening the combo.
+	if (ImGui::BeginCombo("##combo", currentItemFriendList.second.c_str()))
 	{
 		for (const auto friendInfo : friendList)
 		{
-			bool is_selected = (currentItemFriendList.first == friendInfo.first); // You can store your selection however you want, outside or inside your objects
+			bool is_selected = (currentItemFriendList.first == friendInfo.first);
 			if (ImGui::Selectable(friendInfo.second.c_str(), is_selected))
 				currentItemFriendList = friendInfo;
 			if (is_selected)
-				ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+				ImGui::SetItemDefaultFocus();
 		}
 		ImGui::EndCombo();
 	}
@@ -41,23 +41,6 @@ void DrawMainDebugMenu()
 		NetworkManager::SampleMessageDataStructure data;
 		data.m_message = buf;
 		popGetNetworkManager()->SendDataToUser<NetworkManager::SampleMessageDataStructure>(currentItemFriendList.first, data);
-	}
-
-	//Handle message received queue
-	static std::pair<CSteamID, std::string> currentItemMessageQueue(CSteamID(), "");
-	std::vector<std::pair<CSteamID, std::string>>& messageQueue = popGetNetworkManager()->GetIncomingMessageQueue();
-
-	if (ImGui::BeginCombo("##combo", currentItemMessageQueue.second.c_str())) // The second parameter is the label previewed before opening the combo.
-	{
-		for (const auto friendInfo : friendList)
-		{
-			bool is_selected = (currentItemMessageQueue.first == friendInfo.first); // You can store your selection however you want, outside or inside your objects
-			if (ImGui::Selectable(friendInfo.second.c_str(), is_selected))
-				currentItemMessageQueue = friendInfo;
-			if (is_selected)
-				ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
-		}
-		ImGui::EndCombo();
 	}
 
 	ImGui::End();
@@ -83,6 +66,26 @@ void DrawLobbyDebugMenu()
 	for (const auto playerName : playerNameList)
 	{
 		ImGui::Text(playerName.c_str());
+	}
+
+	ImGui::End();
+}
+
+void DrawMessageQueueDebugMenu()
+{
+	ImGui::Begin("Message Queue Debug Menu");
+
+	//Show all player in the lobby
+	std::vector<std::pair<CSteamID, std::string>>& messageQueue = popGetNetworkManager()->GetIncomingMessageQueue();
+	for (const auto message : messageQueue)
+	{
+		ImGui::Text("Player name: ");
+		ImGui::SameLine();
+		ImGui::Text(SteamFriends()->GetFriendPersonaName(message.first));
+		ImGui::SameLine();
+		ImGui::Text(", Message: ");
+		ImGui::SameLine();
+		ImGui::Text(message.second.c_str());
 	}
 
 	ImGui::End();

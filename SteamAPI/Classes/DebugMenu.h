@@ -5,3 +5,5 @@
 void DrawMainDebugMenu();
 
 void DrawLobbyDebugMenu();
+
+void DrawMessageQueueDebugMenu();
