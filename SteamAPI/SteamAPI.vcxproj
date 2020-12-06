@@ -180,6 +180,7 @@ xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
     <ClInclude Include="Classes\CpuTimer.h" />
     <ClInclude Include="Classes\DebugMenu.h" />
     <ClInclude Include="Classes\FriendsManager.h" />
+    <ClInclude Include="Classes\GameManager.h" />
     <ClInclude Include="Classes\LobbyManager.h" />
     <ClInclude Include="Classes\NetworkManager.h" />
     <ClInclude Include="Classes\OnlineManager.h" />
@@ -341,6 +342,7 @@ xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
     <ClCompile Include="Classes\CpuTimer.cpp" />
     <ClCompile Include="Classes\DebugMenu.cpp" />
     <ClCompile Include="Classes\FriendsManager.cpp" />
+    <ClCompile Include="Classes\GameManager.cpp" />
     <ClCompile Include="Classes\LobbyManager.cpp" />
     <ClCompile Include="Classes\NetworkManager.cpp" />
     <ClCompile Include="Classes\OnlineManager.cpp" />

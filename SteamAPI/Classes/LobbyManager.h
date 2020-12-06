@@ -14,8 +14,8 @@ public:
 	CSteamID GetCurrentLobby() { return m_currentLobby; }
 	void InviteFriendToCurrentLobby(const CSteamID playerId);
 	void LeaveCurrentLobby();
-
-	std::vector<std::string> GetCurrentLobbyPlayerNameList();
+	std::vector<CSteamID> GetCurrentLobbyPlayerList();
+	bool IsLocalPlayerCurrentLobbyOwner();
 
 	void OnLobbyCreated(LobbyCreated_t *pCallback, bool bIOFailure);
 	void OnLobbyJoined(LobbyEnter_t *pCallback, bool bIOFailure);

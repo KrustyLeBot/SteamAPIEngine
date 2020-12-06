@@ -60,20 +60,32 @@ void LobbyManager::LeaveCurrentLobby()
 	}
 }
 
-std::vector<std::string> LobbyManager::GetCurrentLobbyPlayerNameList()
+std::vector<CSteamID> LobbyManager::GetCurrentLobbyPlayerList()
 {
-	std::vector<std::string> playerNameList;
+	std::vector<CSteamID> playerList;
 	if (IsCurrentLobbyValid())
 	{
 		int lobbyPlayerCount = SteamMatchmaking()->GetNumLobbyMembers(m_currentLobby);
 		for (int index = 0; index < lobbyPlayerCount; index++)
 		{
-			CSteamID playerId = SteamMatchmaking()->GetLobbyMemberByIndex(m_currentLobby, index);
-			playerNameList.push_back(SteamFriends()->GetFriendPersonaName(playerId));
+			CSteamID id = SteamMatchmaking()->GetLobbyMemberByIndex(m_currentLobby, index);
+			if (id != SteamUser()->GetSteamID())
+			{
+				playerList.push_back(id);
+			}
 		}
 		
 	}
-	return playerNameList;
+	return playerList;
+}
+
+bool LobbyManager::IsLocalPlayerCurrentLobbyOwner()
+{
+	if (IsCurrentLobbyValid())
+	{
+		return SteamUser()->GetSteamID() == SteamMatchmaking()->GetLobbyOwner(m_currentLobby);
+	}
+	return false;
 }
 
 void LobbyManager::OnLobbyCreated(LobbyCreated_t *pCallback, bool bIOFailure)

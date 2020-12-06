@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #include "Classes/FriendsManager.h"
+#include "Classes/GameManager.h"
 
 #define NUMBER_MESSAGE_HANDLED_PER_UPDATE 5
 
@@ -38,6 +39,10 @@ void NetworkManager::HandleIncomingMessage(SteamNetworkingMessage_t* ppOutMessag
 	{
 		SampleMessageDataStructure * convertedData = (SampleMessageDataStructure*)ppOutMessage->GetData();
 		m_incomingMessageQueue.push_back(std::make_pair(ppOutMessage->m_identityPeer.GetSteamID(), convertedData->m_message));
+	}
+	else if (ppOutMessage->GetSize() == sizeof(BackgroundColorData))
+	{
+		popGetGameManager()->SetBackgroundData(*(BackgroundColorData*)ppOutMessage->GetData());
 	}
 	ppOutMessage->Release();
 }

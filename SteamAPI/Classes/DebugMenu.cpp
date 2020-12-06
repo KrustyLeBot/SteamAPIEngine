@@ -5,6 +5,7 @@
 #include "Classes/FriendsManager.h"
 #include "Classes/LobbyManager.h"
 #include "Classes/NetworkManager.h"
+#include "Classes/GameManager.h"
 
 void DrawMainDebugMenu()
 {
@@ -62,10 +63,29 @@ void DrawLobbyDebugMenu()
 	}
 
 	//Show all player in the lobby
-	std::vector<std::string> playerNameList = popGetLobbyManager()->GetCurrentLobbyPlayerNameList();
-	for (const auto playerName : playerNameList)
+	std::vector<CSteamID> playerList = popGetLobbyManager()->GetCurrentLobbyPlayerList();
+	for (const auto player : playerList)
 	{
-		ImGui::Text(playerName.c_str());
+		ImGui::Text(SteamFriends()->GetFriendPersonaName(player));
+	}
+
+	//If we are lobby owner => show slider for background color
+	if (popGetLobbyManager()->IsLocalPlayerCurrentLobbyOwner())
+	{
+		static int R;
+		static int G;
+		static int B;
+		ImGui::SliderInt("Red", &R, 0, 255);
+		ImGui::SliderInt("Green", &G, 0, 255);
+		ImGui::SliderInt("Blue", &B, 0, 255);
+
+		NetworkManager::BackgroundColorData data;
+		data.R = R;
+		data.G = G;
+		data.B = B;
+
+		popGetGameManager()->SetBackgroundData(data);
+		popGetNetworkManager()->SendDataToAllLobby<NetworkManager::BackgroundColorData>(data);
 	}
 
 	ImGui::End();

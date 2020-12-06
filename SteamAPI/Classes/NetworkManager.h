@@ -8,21 +8,43 @@ public:
 	NetworkManager();
 	~NetworkManager();
 
-	struct SampleMessageDataStructure
-	{
-		std::string m_message;
-	};
-
 	void Update() override;
 
+	//Network Data Structures
+	////////////////////////////////////////////////////////////////
+	struct SampleMessageDataStructure
+	{
+		std::string m_message = "";
+	};
+
+	struct BackgroundColorData
+	{
+		int R = 0;
+		int G = 0;
+		int B = 0;
+	};
+	////////////////////////////////////////////////////////////////
+
 	template<class T>
-	bool SendDataToUser(CSteamID recipientId, T data)
+	void SendDataToUser(CSteamID recipientId, T data)
 	{
 		SteamNetworkingIdentity recipientNetworkingIdentity;
 		recipientNetworkingIdentity.SetSteamID(recipientId);
 
 		EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, &data, sizeof(data), k_EP2PSendUnreliable, 0);
-		return result == k_EResultOK;
+	}
+
+	template<class T>
+	void SendDataToAllLobby(T data)
+	{
+		std::vector<CSteamID> recipients = popGetLobbyManager()->GetCurrentLobbyPlayerList();
+		for (const CSteamID id : recipients)
+		{
+			SteamNetworkingIdentity recipientNetworkingIdentity;
+			recipientNetworkingIdentity.SetSteamID(id);
+
+			EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, &data, sizeof(data), k_EP2PSendUnreliable, 0);
+		}
 	}
 
 	std::vector<std::pair<CSteamID, std::string>>& GetIncomingMessageQueue() { return m_incomingMessageQueue; }
