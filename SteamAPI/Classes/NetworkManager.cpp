@@ -20,29 +20,39 @@ NetworkManager::~NetworkManager()
 
 void NetworkManager::Update()
 {
-	SteamNetworkingMessage_t** ppOutMessages = static_cast<SteamNetworkingMessage_t**>(malloc(sizeof(SteamNetworkingMessage_t*) * NUMBER_MESSAGE_HANDLED_PER_UPDATE));
-	int ppOutMessagesCount = SteamNetworkingMessages()->ReceiveMessagesOnChannel(0, ppOutMessages, NUMBER_MESSAGE_HANDLED_PER_UPDATE);
-
-	for (int index = 0; index < min(ppOutMessagesCount,NUMBER_MESSAGE_HANDLED_PER_UPDATE); index++)
+	for (int channel = 0; channel < 2; channel++)
 	{
-		if (ppOutMessages[index] != nullptr)
+		SteamNetworkingMessage_t** ppOutMessages = static_cast<SteamNetworkingMessage_t**>(malloc(sizeof(SteamNetworkingMessage_t*) * NUMBER_MESSAGE_HANDLED_PER_UPDATE));
+		int ppOutMessagesCount = SteamNetworkingMessages()->ReceiveMessagesOnChannel(channel, ppOutMessages, NUMBER_MESSAGE_HANDLED_PER_UPDATE);
+
+		for (int index = 0; index < min(ppOutMessagesCount, NUMBER_MESSAGE_HANDLED_PER_UPDATE); index++)
 		{
-			HandleIncomingMessage(ppOutMessages[index]);
+			if (ppOutMessages[index] != nullptr)
+			{
+				HandleIncomingMessage(ppOutMessages[index], channel);
+			}
 		}
+		free(ppOutMessages);
 	}
-	free(ppOutMessages);
 }
 
-void NetworkManager::HandleIncomingMessage(SteamNetworkingMessage_t* ppOutMessage)
+void NetworkManager::HandleIncomingMessage(SteamNetworkingMessage_t* ppOutMessage, int channel)
 {
-	if (ppOutMessage->GetSize() == sizeof(SampleMessageDataStructure))
+	switch (channel)
 	{
-		SampleMessageDataStructure * convertedData = (SampleMessageDataStructure*)ppOutMessage->GetData();
+	case DataStructuresChannelEnum::SampleMessageDataChannel:
+	{
+		SampleMessageData* convertedData = (SampleMessageData*)ppOutMessage->GetData();
 		m_incomingMessageQueue.push_back(std::make_pair(ppOutMessage->m_identityPeer.GetSteamID(), convertedData->m_message));
+		break;
 	}
-	else if (ppOutMessage->GetSize() == sizeof(BackgroundColorData))
-	{
+
+	case DataStructuresChannelEnum::BackgroundColorDataChannel:
 		popGetGameManager()->SetBackgroundData(*(BackgroundColorData*)ppOutMessage->GetData());
+		break;
+
+	default:
+		break;
 	}
 	ppOutMessage->Release();
 }

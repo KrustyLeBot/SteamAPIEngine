@@ -15,12 +15,12 @@ public:
 	void SetRenderWindow(sf::RenderWindow* renderWindow) { m_renderWindow = renderWindow; }
 	void DrawStaticElements();
 
-	void SetBackgroundData(NetworkManager::BackgroundColorData data) { m_bgData = data; }
+	void SetBackgroundData(BackgroundColorData data) { m_bgData = data; }
 
 
 private:
 	sf::RenderWindow* m_renderWindow;
-	NetworkManager::BackgroundColorData m_bgData;
+	BackgroundColorData m_bgData;
 };
 
 #define popGetGameManager() GameManager::GetInstancePtr<GameManager>()

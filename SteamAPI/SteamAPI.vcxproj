@@ -38,6 +38,8 @@
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <SpectreMitigation>false</SpectreMitigation>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -51,6 +53,8 @@
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <SpectreMitigation>false</SpectreMitigation>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -77,10 +81,10 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -90,17 +94,19 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)SFML\include;$(ProjectDir)GL;$(ProjectDir)IMGUI;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>steam_api.lib;"$(ProjectDir)SFML\lib\sfml-graphics-d.lib";"$(ProjectDir)SFML\lib\sfml-window-d.lib";"$(ProjectDir)SFML\lib\sfml-system-d.lib";"$(ProjectDir)SFML\lib\sfml-network-d.lib";"$(ProjectDir)SFML\lib\sfml-audio-d.lib";"$(ProjectDir)GL\opengl32.lib";"$(ProjectDir)GL\glut32.lib";%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>SteamAPI;SteamAPI\SFML\lib;SteamAPI\IMGUI;SteamAPI\GL;SteamAPI\Steam;SteamAPI\Classes;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d  "$(ProjectDir)*.dll" "$(OutDir)"
 xcopy /y /d  "$(ProjectDir)steam_appid.txt" "$(OutDir)"
-xcopy /y /d  "$(ProjectDir)SFML\bin\*.dll" "$(OutDir)"
+xcopy /y /d  "$(ProjectDir)SFML\bin\debug\*.dll" "$(OutDir)"
 echo R|xcopy /y /d /e /r "$(ProjectDir)Assets" "$(OutDir)Assets"
 xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
@@ -113,65 +119,81 @@ xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)SFML\include;$(ProjectDir)GL;$(ProjectDir)IMGUI;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>steam_api.lib;"$(ProjectDir)SFML\lib\sfml-graphics-d.lib";"$(ProjectDir)SFML\lib\sfml-window-d.lib";"$(ProjectDir)SFML\lib\sfml-system-d.lib";"$(ProjectDir)SFML\lib\sfml-network-d.lib";"$(ProjectDir)SFML\lib\sfml-audio-d.lib";"$(ProjectDir)GL\opengl32.lib";"$(ProjectDir)GL\glut32.lib";%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>SteamAPI;SteamAPI\SFML\lib;SteamAPI\IMGUI;SteamAPI\GL;SteamAPI\Steam;SteamAPI\Classes;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d  "$(ProjectDir)*.dll" "$(OutDir)"
 xcopy /y /d  "$(ProjectDir)steam_appid.txt" "$(OutDir)"
-xcopy /y /d  "$(ProjectDir)SFML\bin\*.dll" "$(OutDir)"
+xcopy /y /d  "$(ProjectDir)SFML\bin\debug\*.dll" "$(OutDir)"
 echo R|xcopy /y /d /e /r "$(ProjectDir)Assets" "$(OutDir)Assets"
 xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)SFML\include;$(ProjectDir)GL;$(ProjectDir)IMGUI;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>SteamAPI;SteamAPI\SFML\lib;SteamAPI\IMGUI;SteamAPI\GL;SteamAPI\Steam;SteamAPI\Classes;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>steam_api.lib;"$(ProjectDir)SFML\lib\sfml-graphics.lib";"$(ProjectDir)SFML\lib\sfml-window.lib";"$(ProjectDir)SFML\lib\sfml-system.lib";"$(ProjectDir)SFML\lib\sfml-network.lib";"$(ProjectDir)SFML\lib\sfml-audio.lib";"$(ProjectDir)GL\opengl32.lib";"$(ProjectDir)GL\glut32.lib";%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d  "$(ProjectDir)*.dll" "$(OutDir)"
 xcopy /y /d  "$(ProjectDir)steam_appid.txt" "$(OutDir)"
-xcopy /y /d  "$(ProjectDir)SFML\bin\*.dll" "$(OutDir)"
+xcopy /y /d  "$(ProjectDir)SFML\bin\release\*.dll" "$(OutDir)"
 echo R|xcopy /y /d /e /r "$(ProjectDir)Assets" "$(OutDir)Assets"
 xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)SFML\include;$(ProjectDir)GL;$(ProjectDir)IMGUI;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>SteamAPI;SteamAPI\SFML\lib;SteamAPI\IMGUI;SteamAPI\GL;SteamAPI\Steam;SteamAPI\Classes;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>steam_api.lib;"$(ProjectDir)SFML\lib\sfml-graphics.lib";"$(ProjectDir)SFML\lib\sfml-window.lib";"$(ProjectDir)SFML\lib\sfml-system.lib";"$(ProjectDir)SFML\lib\sfml-network.lib";"$(ProjectDir)SFML\lib\sfml-audio.lib";"$(ProjectDir)GL\opengl32.lib";"$(ProjectDir)GL\glut32.lib";%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d  "$(ProjectDir)*.dll" "$(OutDir)"
 xcopy /y /d  "$(ProjectDir)steam_appid.txt" "$(OutDir)"
-xcopy /y /d  "$(ProjectDir)SFML\bin\*.dll" "$(OutDir)"
+xcopy /y /d  "$(ProjectDir)SFML\bin\release\*.dll" "$(OutDir)"
 echo R|xcopy /y /d /e /r "$(ProjectDir)Assets" "$(OutDir)Assets"
 xcopy /y /d  "$(ProjectDir)GL\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>

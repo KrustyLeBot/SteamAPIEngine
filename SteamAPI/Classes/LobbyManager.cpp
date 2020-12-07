@@ -1,5 +1,4 @@
 #include "LobbyManager.h"
-#include <windows.h>
 
 LobbyManager::LobbyManager()
 {
@@ -32,17 +31,14 @@ void LobbyManager::InviteFriendToCurrentLobby(const CSteamID playerId)
 		bool result = SteamMatchmaking()->InviteUserToLobby(m_currentLobby, playerId);
 		if (result)
 		{
-			OutputDebugString("Friend invited\n");
 		}
 		else
 		{
-			OutputDebugString("Friend invite failed\n");
 		}
 	}
 	else if(!m_SteamCallResultLobbyCreated.IsActive())
 	{
 		// If you are not in a lobby and one is not currently being created, create one
-		OutputDebugString("Not in a lobby, creating one\n");
 		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->CreateLobby(k_ELobbyTypePrivate, 4);
 		m_SteamCallResultLobbyCreated.Set(hSteamAPICall, this, &LobbyManager::OnLobbyCreated);
 
@@ -92,7 +88,6 @@ void LobbyManager::OnLobbyCreated(LobbyCreated_t *pCallback, bool bIOFailure)
 {
 	if (pCallback->m_eResult == k_EResultOK)
 	{
-		OutputDebugString("Lobby created\n");
 		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->JoinLobby(pCallback->m_ulSteamIDLobby);
 		m_SteamCallResultLobbyJoined.Set(hSteamAPICall, this, &LobbyManager::OnLobbyJoined);
 	}
@@ -102,7 +97,6 @@ void LobbyManager::OnLobbyJoined(LobbyEnter_t *pCallback, bool bIOFailure)
 {
 	if (pCallback->m_EChatRoomEnterResponse == k_EChatRoomEnterResponseSuccess)
 	{
-		OutputDebugString("Lobby joined\n");
 		m_currentLobby = pCallback->m_ulSteamIDLobby;
 
 		//Handle invites that need to be send now that we are in a lobby
@@ -118,7 +112,6 @@ void LobbyManager::HandleLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
 {
 	if (pParam != nullptr)
 	{
-		OutputDebugString("Invite accepted through overlay\n");
 		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->JoinLobby(pParam->m_steamIDLobby);
 		m_SteamCallResultLobbyJoined.Set(hSteamAPICall, this, &LobbyManager::OnLobbyJoined);
 	}
