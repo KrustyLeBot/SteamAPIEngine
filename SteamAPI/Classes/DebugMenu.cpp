@@ -92,6 +92,17 @@ void DrawLobbyDebugMenu()
 
 		popGetGameManager()->SetBackgroundData(data);
 		popGetNetworkManager()->SendDataToAllLobby<BackgroundColorData>(data, k_EP2PSendUnreliableNoDelay);
+
+		//Start and Stop game
+		if (ImGui::Button("START GAME"))
+		{
+			popGetGameManager()->StartGame();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("STOP GAME"))
+		{
+			popGetGameManager()->StopGame();
+		}
 	}
 
 	ImGui::End();

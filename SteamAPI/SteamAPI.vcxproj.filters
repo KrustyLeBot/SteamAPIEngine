@@ -489,9 +489,6 @@
     <ClInclude Include="Classes\FriendsManager.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Classes\OnlineManager.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="Classes\CpuTimer.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
@@ -505,6 +502,9 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Classes\GameManager.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Singleton.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
@@ -530,9 +530,6 @@
     <ClCompile Include="IMGUI\imgui_tables.cpp">
       <Filter>IMGUI</Filter>
     </ClCompile>
-    <ClCompile Include="Classes\OnlineManager.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="Classes\FriendsManager.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
@@ -549,6 +546,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Classes\GameManager.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Singleton.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

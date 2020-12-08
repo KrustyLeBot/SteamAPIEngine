@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
-#include "Classes/OnlineManager.h"
+#include "Classes/Singleton.h"
 #include "Steam/steam_api.h"
 
-class LobbyManager : public OnlineManager
+class LobbyManager : public Singleton
 {
 public:
 	LobbyManager();
@@ -12,10 +12,13 @@ public:
 	void Update() override;
 	bool IsCurrentLobbyValid();
 	CSteamID GetCurrentLobby() { return m_currentLobby; }
-	void InviteFriendToCurrentLobby(const CSteamID playerId);
+	void InviteFriendToCurrentLobby(CSteamID playerId);
 	void LeaveCurrentLobby();
-	std::vector<CSteamID> GetCurrentLobbyPlayerList();
+	std::vector<CSteamID> GetCurrentLobbyPlayerList() { return m_playerList; }
 	bool IsLocalPlayerCurrentLobbyOwner();
+	bool IsPlayerInCurrentLobby(CSteamID playerId);
+	void SetLobbyMetadata(std::string key, std::string value);
+	std::string GetLobbyMetadata(std::string key);
 
 	void OnLobbyCreated(LobbyCreated_t *pCallback, bool bIOFailure);
 	void OnLobbyJoined(LobbyEnter_t *pCallback, bool bIOFailure);
@@ -29,6 +32,7 @@ private:
 	CCallResult<LobbyManager, LobbyEnter_t> m_SteamCallResultLobbyJoined;
 
 	std::vector<CSteamID> m_inviteBuffer;
+	std::vector<CSteamID> m_playerList;
 };
 
 #define popGetLobbyManager() LobbyManager::GetInstancePtr<LobbyManager>()

@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #include "Classes/FriendsManager.h"
+#include "Classes/LobbyManager.h"
 #include "Classes/GameManager.h"
 
 #define NUMBER_MESSAGE_HANDLED_PER_UPDATE 5
@@ -65,8 +66,8 @@ void NetworkManager::HandleNetworkingMessagesErrors(SteamNetworkingMessagesSessi
 void NetworkManager::HandleNetworkingMessagesSessionRequest(SteamNetworkingMessagesSessionRequest_t *pParam)
 {
 	OutputDebugString("Incoming session request\n");
-	//Only accept sessions with friends
-	if (pParam != nullptr && popGetFriendsManager()->IsFriend(pParam->m_identityRemote.GetSteamID()))
+	//Only accept sessions with friend or lobby members
+	if (pParam != nullptr && (popGetFriendsManager()->IsFriend(pParam->m_identityRemote.GetSteamID()) || popGetLobbyManager()->IsPlayerInCurrentLobby(pParam->m_identityRemote.GetSteamID())))
 	{
 		SteamNetworkingMessages()->AcceptSessionWithUser(pParam->m_identityRemote);
 	}

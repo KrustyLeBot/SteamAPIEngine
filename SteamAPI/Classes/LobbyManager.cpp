@@ -1,4 +1,7 @@
 #include "LobbyManager.h"
+#include <windows.h>
+#include "Classes/FriendsManager.h"
+#include "Classes/GameManager.h"
 
 LobbyManager::LobbyManager()
 {
@@ -16,6 +19,23 @@ LobbyManager::~LobbyManager()
 
 void LobbyManager::Update()
 {
+	if (IsCurrentLobbyValid() && (!m_timer.IsStarted() || m_timer.GetElapsedTimeMs() >= 1000 * 2))
+	{
+		int lobbyPlayerCount = SteamMatchmaking()->GetNumLobbyMembers(m_currentLobby);
+		m_playerList.clear();
+		for (int index = 0; index < lobbyPlayerCount; index++)
+		{
+			CSteamID id = SteamMatchmaking()->GetLobbyMemberByIndex(m_currentLobby, index);
+			if (id != SteamUser()->GetSteamID())
+			{
+				m_playerList.push_back(id);
+				popGetFriendsManager()->AddPlayerToCache(id);
+			}
+		}
+
+		m_timer.Reset();
+		m_timer.Start();
+	}
 }
 
 bool LobbyManager::IsCurrentLobbyValid()
@@ -23,18 +43,13 @@ bool LobbyManager::IsCurrentLobbyValid()
 	return m_currentLobby.ConvertToUint64() != 0;
 }
 
-void LobbyManager::InviteFriendToCurrentLobby(const CSteamID playerId)
+void LobbyManager::InviteFriendToCurrentLobby(CSteamID playerId)
 {
 	if (IsCurrentLobbyValid())
 	{
 		//Invite friend to lobby
 		bool result = SteamMatchmaking()->InviteUserToLobby(m_currentLobby, playerId);
-		if (result)
-		{
-		}
-		else
-		{
-		}
+		OutputDebugString(result ? "Invite sent\n" : "Invite failed");
 	}
 	else if(!m_SteamCallResultLobbyCreated.IsActive())
 	{
@@ -56,25 +71,6 @@ void LobbyManager::LeaveCurrentLobby()
 	}
 }
 
-std::vector<CSteamID> LobbyManager::GetCurrentLobbyPlayerList()
-{
-	std::vector<CSteamID> playerList;
-	if (IsCurrentLobbyValid())
-	{
-		int lobbyPlayerCount = SteamMatchmaking()->GetNumLobbyMembers(m_currentLobby);
-		for (int index = 0; index < lobbyPlayerCount; index++)
-		{
-			CSteamID id = SteamMatchmaking()->GetLobbyMemberByIndex(m_currentLobby, index);
-			if (id != SteamUser()->GetSteamID())
-			{
-				playerList.push_back(id);
-			}
-		}
-		
-	}
-	return playerList;
-}
-
 bool LobbyManager::IsLocalPlayerCurrentLobbyOwner()
 {
 	if (IsCurrentLobbyValid())
@@ -82,6 +78,25 @@ bool LobbyManager::IsLocalPlayerCurrentLobbyOwner()
 		return SteamUser()->GetSteamID() == SteamMatchmaking()->GetLobbyOwner(m_currentLobby);
 	}
 	return false;
+}
+
+bool LobbyManager::IsPlayerInCurrentLobby(CSteamID playerId)
+{
+	if (IsCurrentLobbyValid() && std::find(m_playerList.begin(), m_playerList.end(), playerId) != m_playerList.end())
+	{
+		return true;
+	}
+	return false;
+}
+
+void LobbyManager::SetLobbyMetadata(std::string key, std::string value)
+{
+	SteamMatchmaking()->SetLobbyData(m_currentLobby, key.c_str(), value.c_str());
+}
+
+std::string LobbyManager::GetLobbyMetadata(std::string key)
+{
+	return SteamMatchmaking()->GetLobbyData(m_currentLobby, key.c_str());
 }
 
 void LobbyManager::OnLobbyCreated(LobbyCreated_t *pCallback, bool bIOFailure)
@@ -105,6 +120,10 @@ void LobbyManager::OnLobbyJoined(LobbyEnter_t *pCallback, bool bIOFailure)
 			InviteFriendToCurrentLobby(playerId);
 		}
 		m_inviteBuffer.clear();
+	}
+	else
+	{
+		LeaveCurrentLobby();
 	}
 }
 

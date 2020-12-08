@@ -1,5 +1,5 @@
 #pragma once
-#include "Classes/OnlineManager.h"
+#include "Classes/Singleton.h"
 #include "Steam/steam_api.h"
 
 //Network Data Structures
@@ -7,7 +7,8 @@
 enum DataStructuresChannelEnum
 {
 	SampleMessageDataChannel = 0,
-	BackgroundColorDataChannel = 1
+	BackgroundColorDataChannel = 1,
+	ChannelCount = 2
 };
 
 struct SampleMessageData
@@ -23,7 +24,7 @@ struct BackgroundColorData
 };
 ////////////////////////////////////////////////////////////////
 
-class NetworkManager : public OnlineManager
+class NetworkManager : public Singleton
 {
 public:
 	NetworkManager();

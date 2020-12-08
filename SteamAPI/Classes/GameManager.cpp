@@ -1,7 +1,16 @@
 #include "GameManager.h"
+#include "Classes/LobbyManager.h"
+#include <chrono>
+
+static const char* GAME_STARTING_METADATA_KEY = "game_starting";
+static const char* GAME_START_TIMESTAMP_METADATA_KEY = "game_start_timestamp";
+static const int GAME_START_TIMER_SECONDS = 10;
 
 GameManager::GameManager()
+	: m_gameStarted(false)
+	, m_gameStarting(false)
 {
+	m_font.loadFromFile("Assets/fonts/cmunss.ttf");
 }
 
 GameManager::~GameManager()
@@ -10,6 +19,23 @@ GameManager::~GameManager()
 
 void GameManager::Update()
 {
+	SetGameStarting(popGetLobbyManager()->GetLobbyMetadata(GAME_STARTING_METADATA_KEY));
+
+	if (m_gameStarting)
+	{
+		int startTimestamp = std::stoi(popGetLobbyManager()->GetLobbyMetadata(GAME_START_TIMESTAMP_METADATA_KEY));
+		const auto now = std::chrono::system_clock::now();
+		int nowTimestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+		if (nowTimestamp >= startTimestamp)
+		{
+			m_gameStarted = true;
+			m_gameStarting = false;
+		}
+		else
+		{
+			m_remainingTime = std::to_string(startTimestamp - nowTimestamp);
+		}
+	}
 }
 
 void GameManager::DrawStaticElements()
@@ -20,5 +46,52 @@ void GameManager::DrawStaticElements()
 		rectangle.setFillColor(sf::Color(m_bgData.R, m_bgData.G, m_bgData.B));
 
 		m_renderWindow->draw(rectangle);
+		
+		if (m_gameStarting)
+		{
+			sf::Text text;
+			text.setFont(m_font);
+			text.setString(m_remainingTime);
+			text.setCharacterSize(250);
+			m_renderWindow->draw(text);
+		}
+
+		if (m_gameStarted)
+		{
+			sf::Text text;
+			text.setFont(m_font);
+			text.setString("Game Started");
+			text.setCharacterSize(250);
+			m_renderWindow->draw(text);
+		}
+	}
+}
+
+void GameManager::StartGame()
+{
+	popGetLobbyManager()->SetLobbyMetadata(GAME_STARTING_METADATA_KEY, "true");
+	SetGameStarting("true");
+	const auto now = std::chrono::system_clock::now();
+	std::string startTimestamp = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count() + GAME_START_TIMER_SECONDS);
+	popGetLobbyManager()->SetLobbyMetadata(GAME_START_TIMESTAMP_METADATA_KEY, startTimestamp);
+}
+
+void GameManager::StopGame()
+{
+	popGetLobbyManager()->SetLobbyMetadata(GAME_STARTING_METADATA_KEY, "false");
+	SetGameStarting("false");
+	m_gameStarted = false;
+}
+
+void GameManager::SetGameStarting(std::string value)
+{
+	if (value == "true")
+	{
+		m_gameStarting = true;
+	}
+	else
+	{
+		m_gameStarting = false;
+		m_gameStarted = false;
 	}
 }

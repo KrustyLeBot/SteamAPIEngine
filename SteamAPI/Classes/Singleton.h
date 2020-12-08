@@ -6,11 +6,11 @@
 #include <typeindex>
 #include "Classes/CpuTimer.h"
 
-class OnlineManager
+class Singleton
 {
 public:
-	OnlineManager();
-	~OnlineManager();
+	Singleton();
+	~Singleton();
 
 	virtual void Update();
 
