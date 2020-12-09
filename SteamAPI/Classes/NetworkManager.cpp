@@ -1,11 +1,11 @@
 #include "NetworkManager.h"
 #include <windows.h>
-
 #include "Classes/FriendsManager.h"
-#include "Classes/LobbyManager.h"
 #include "Classes/GameManager.h"
 
-#define NUMBER_MESSAGE_HANDLED_PER_UPDATE 5
+#define NUMBER_MESSAGE_HANDLED_PER_UPDATE 2
+
+static int previous_timestamp = 0;
 
 NetworkManager::NetworkManager()
 {
@@ -21,7 +21,7 @@ NetworkManager::~NetworkManager()
 
 void NetworkManager::Update()
 {
-	for (int channel = 0; channel < 2; channel++)
+	for (int channel = 0; channel < DataStructuresChannelEnum::ChannelCount; channel++)
 	{
 		SteamNetworkingMessage_t** ppOutMessages = static_cast<SteamNetworkingMessage_t**>(malloc(sizeof(SteamNetworkingMessage_t*) * NUMBER_MESSAGE_HANDLED_PER_UPDATE));
 		int ppOutMessagesCount = SteamNetworkingMessages()->ReceiveMessagesOnChannel(channel, ppOutMessages, NUMBER_MESSAGE_HANDLED_PER_UPDATE);
@@ -41,16 +41,30 @@ void NetworkManager::HandleIncomingMessage(SteamNetworkingMessage_t* ppOutMessag
 {
 	switch (channel)
 	{
-	case DataStructuresChannelEnum::SampleMessageDataChannel:
+	case DataStructuresChannelEnum::MessageDataChannel:
 	{
-		SampleMessageData* convertedData = (SampleMessageData*)ppOutMessage->GetData();
-		m_incomingMessageQueue.push_back(std::make_pair(ppOutMessage->m_identityPeer.GetSteamID(), convertedData->m_message));
+		char* convertedData = (char*)ppOutMessage->GetData();
+		m_incomingMessageQueue.push_back(std::make_pair(ppOutMessage->m_identityPeer.GetSteamID(), std::string(convertedData, ppOutMessage->GetSize()/sizeof(char))));
 		break;
 	}
 
 	case DataStructuresChannelEnum::BackgroundColorDataChannel:
-		popGetGameManager()->SetBackgroundData(*(BackgroundColorData*)ppOutMessage->GetData());
+	{
+		BackgroundColorData convertedData = *(BackgroundColorData*)ppOutMessage->GetData();
+		popGetGameManager()->SetBackgroundData(convertedData);
 		break;
+	}
+
+	case DataStructuresChannelEnum::PlayerPositionDataChannel:
+	{
+		int length = ppOutMessage->GetSize()/sizeof(PlayerPositionData);
+		PlayerPositionData* posList = (PlayerPositionData*)ppOutMessage->GetData();
+		for (int index = 0; index < length; index++)
+		{
+			popGetGameManager()->SetPlayerPosition(posList[index]);
+		}
+		break;
+	}
 
 	default:
 		break;
@@ -58,9 +72,58 @@ void NetworkManager::HandleIncomingMessage(SteamNetworkingMessage_t* ppOutMessag
 	ppOutMessage->Release();
 }
 
+void NetworkManager::SendDataToUser(CSteamID recipientId, std::string message)
+{
+	SteamNetworkingIdentity recipientNetworkingIdentity;
+	recipientNetworkingIdentity.SetSteamID(recipientId);
+
+	EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, message.c_str(), message.length(), k_EP2PSendReliable, DataStructuresChannelEnum::MessageDataChannel);
+}
+
+void NetworkManager::SendDataToAllLobby(BackgroundColorData data)
+{
+	std::vector<CSteamID> recipients = popGetLobbyManager()->GetCurrentLobbyPlayerList();
+	for (const CSteamID id : recipients)
+	{
+		SteamNetworkingIdentity recipientNetworkingIdentity;
+		recipientNetworkingIdentity.SetSteamID(id);
+		EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, &data, sizeof(BackgroundColorData), k_EP2PSendUnreliable, DataStructuresChannelEnum::BackgroundColorDataChannel);
+	}
+}
+
+void NetworkManager::SendPlayerPositionDataToAllLobby(std::unordered_map<uint64, PlayerPositionData> data)
+{
+	const int length = data.size();
+	
+	PlayerPositionData allocatedMemory[LOBBY_MAX_PLAYERS];
+	int counter = 0;
+	for (auto& pos : data)
+	{
+		allocatedMemory[counter] = pos.second;
+	}
+
+	std::vector<CSteamID> recipients = popGetLobbyManager()->GetCurrentLobbyPlayerList();
+	for (const CSteamID id : recipients)
+	{
+		SteamNetworkingIdentity recipientNetworkingIdentity;
+		recipientNetworkingIdentity.SetSteamID(id);
+
+		EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, allocatedMemory, sizeof(PlayerPositionData) * min(length, LOBBY_MAX_PLAYERS), k_EP2PSendUnreliable, DataStructuresChannelEnum::PlayerPositionDataChannel);
+	}
+}
+
+void NetworkManager::SendCurrentPlayerPositionDataToLobbyOwner(PlayerPositionData data)
+{
+	SteamNetworkingIdentity recipientNetworkingIdentity;
+	recipientNetworkingIdentity.SetSteamID(SteamMatchmaking()->GetLobbyOwner(popGetLobbyManager()->GetCurrentLobby()));
+
+	EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, &data, sizeof(PlayerPositionData), k_EP2PSendReliable, DataStructuresChannelEnum::PlayerPositionDataChannel);
+}
+
 void NetworkManager::HandleNetworkingMessagesErrors(SteamNetworkingMessagesSessionFailed_t *pParam)
 {
 	OutputDebugString("Message session failed\n");
+	SteamNetworkingMessages()->CloseSessionWithUser(pParam->m_info.m_identityRemote);
 }
 
 void NetworkManager::HandleNetworkingMessagesSessionRequest(SteamNetworkingMessagesSessionRequest_t *pParam)

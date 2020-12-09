@@ -1,10 +1,13 @@
 #include "GameManager.h"
 #include "Classes/LobbyManager.h"
 #include <chrono>
+#include <sstream>
+#include <windows.h>
 
 static const char* GAME_STARTING_METADATA_KEY = "game_starting";
 static const char* GAME_START_TIMESTAMP_METADATA_KEY = "game_start_timestamp";
 static const int GAME_START_TIMER_SECONDS = 10;
+static const int TICK_RATE_SERVER = 64;
 
 GameManager::GameManager()
 	: m_gameStarted(false)
@@ -34,6 +37,28 @@ void GameManager::Update()
 		else
 		{
 			m_remainingTime = std::to_string(startTimestamp - nowTimestamp);
+		}
+	}
+
+	if (m_gameStarted)
+	{
+		if (!m_timer.IsStarted() || m_timer.GetElapsedTimeMs() >= int(1000.0 / TICK_RATE_SERVER))
+		{
+			popGetNetworkManager()->SendDataToAllLobby(popGetGameManager()->GetBackgroundData());
+
+			if (popGetLobbyManager()->IsLocalPlayerCurrentLobbyOwner())
+			{
+				//We are the server
+				popGetNetworkManager()->SendPlayerPositionDataToAllLobby(m_lobbyPlayerPositions);
+			}
+			else
+			{
+				//We are a client
+				popGetNetworkManager()->SendCurrentPlayerPositionDataToLobbyOwner(m_position);
+			}
+
+			m_timer.Reset();
+			m_timer.Start();
 		}
 	}
 }
@@ -94,4 +119,9 @@ void GameManager::SetGameStarting(std::string value)
 		m_gameStarting = false;
 		m_gameStarted = false;
 	}
+}
+
+void GameManager::SetPlayerPosition(PlayerPositionData data)
+{
+	m_lobbyPlayerPositions[data.playerId.ConvertToUint64()] = data;
 }

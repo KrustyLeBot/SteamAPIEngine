@@ -54,7 +54,7 @@ void LobbyManager::InviteFriendToCurrentLobby(CSteamID playerId)
 	else if(!m_SteamCallResultLobbyCreated.IsActive())
 	{
 		// If you are not in a lobby and one is not currently being created, create one
-		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->CreateLobby(k_ELobbyTypePrivate, 4);
+		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->CreateLobby(k_ELobbyTypePrivate, LOBBY_MAX_PLAYERS);
 		m_SteamCallResultLobbyCreated.Set(hSteamAPICall, this, &LobbyManager::OnLobbyCreated);
 
 		//Add to buffer the invite to send it when the lobby will be created

@@ -3,6 +3,8 @@
 #include "Classes/Singleton.h"
 #include "Steam/steam_api.h"
 
+#define LOBBY_MAX_PLAYERS 4
+
 class LobbyManager : public Singleton
 {
 public:

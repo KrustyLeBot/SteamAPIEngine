@@ -15,10 +15,14 @@ public:
 	void SetRenderWindow(sf::RenderWindow* renderWindow) { m_renderWindow = renderWindow; }
 	void DrawStaticElements();
 	void SetBackgroundData(BackgroundColorData data) { m_bgData = data; }
+	void SetBackgroundData(int R, int G, int B) { m_bgData.R = R; m_bgData.G = G; m_bgData.B = B; }
 	void StartGame();
 	void StopGame();
 	bool IsGameStarted() { return m_gameStarted; }
 	bool IsGameStarting() { return m_gameStarting; }
+	void SetPlayerPosition(PlayerPositionData data);
+	PlayerPositionData& GetPlayerPosition() { return m_position; }
+	BackgroundColorData& GetBackgroundData() { return m_bgData; }
 
 private:
 	void SetGameStarting(std::string value);
@@ -31,6 +35,9 @@ private:
 	bool m_gameStarting;
 	CpuTimer m_startGameTimer;
 	std::string m_remainingTime;
+
+	PlayerPositionData m_position;
+	std::unordered_map<uint64, PlayerPositionData> m_lobbyPlayerPositions;
 };
 
 #define popGetGameManager() GameManager::GetInstancePtr<GameManager>()

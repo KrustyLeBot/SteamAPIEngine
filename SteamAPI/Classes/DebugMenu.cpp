@@ -1,18 +1,18 @@
 #include "DebugMenu.h"
-
 #include <sstream>
-
 #include "Classes/FriendsManager.h"
 #include "Classes/LobbyManager.h"
 #include "Classes/NetworkManager.h"
 #include "Classes/GameManager.h"
+
+static char buf[128];
+static std::pair<CSteamID, std::string> currentItemFriendList(CSteamID(), "Select a friend");
 
 void DrawMainDebugMenu()
 {
 	ImGui::Begin("Main Debug Menu");
 
 	//Handle the list of friends
-	static std::pair<CSteamID, std::string> currentItemFriendList(CSteamID(), "Select a friend");
 	std::vector<std::pair<CSteamID, std::string>>& friendList = popGetFriendsManager()->GetFriendList();
 
 	std::stringstream hinStringStream;
@@ -40,17 +40,19 @@ void DrawMainDebugMenu()
 	}
 
 	//Send message to a friend
-	static char buf[128];
 	ImGui::InputText("", buf, 128);
 	if (ImGui::Button("Send message") && currentItemFriendList.first != CSteamID())
 	{
-		SampleMessageData data;
-		data.m_message = buf;
-		popGetNetworkManager()->SendDataToUser<SampleMessageData>(currentItemFriendList.first, data, k_EP2PSendReliable);
+		popGetNetworkManager()->SendDataToUser(currentItemFriendList.first, std::string(buf));
 	}
 
 	ImGui::End();
 }
+
+
+static int R = 0;
+static int G = 0;
+static int B = 0;
 
 void DrawLobbyDebugMenu()
 {
@@ -77,21 +79,11 @@ void DrawLobbyDebugMenu()
 	//If we are lobby owner => show slider for background color
 	if (popGetLobbyManager()->IsLocalPlayerCurrentLobbyOwner())
 	{
-		static int R;
-		static int G;
-		static int B;
-
 		ImGui::SliderInt("Red", &R, 0, 255);
 		ImGui::SliderInt("Green", &G, 0, 255);
 		ImGui::SliderInt("Blue", &B, 0, 255);
 
-		BackgroundColorData data;
-		data.R = R;
-		data.G = G;
-		data.B = B;
-
-		popGetGameManager()->SetBackgroundData(data);
-		popGetNetworkManager()->SendDataToAllLobby<BackgroundColorData>(data, k_EP2PSendUnreliableNoDelay);
+		popGetGameManager()->SetBackgroundData(R, G, B);
 
 		//Start and Stop game
 		if (ImGui::Button("START GAME"))

@@ -2,18 +2,16 @@
 #include "Classes/Singleton.h"
 #include "Steam/steam_api.h"
 
+#include "Classes/LobbyManager.h"
+
 //Network Data Structures
 ////////////////////////////////////////////////////////////////
 enum DataStructuresChannelEnum
 {
-	SampleMessageDataChannel = 0,
+	MessageDataChannel = 0,
 	BackgroundColorDataChannel = 1,
-	ChannelCount = 2
-};
-
-struct SampleMessageData
-{
-	std::string m_message;
+	PlayerPositionDataChannel = 2,
+	ChannelCount = 3
 };
 
 struct BackgroundColorData
@@ -21,6 +19,15 @@ struct BackgroundColorData
 	int R = 0;
 	int G = 0;
 	int B = 0;
+};
+
+struct PlayerPositionData
+{
+	CSteamID playerId = CSteamID();
+	int sprite = 0;
+	int posX = 0;
+	int posY = 0;
+	int posZ = 0;
 };
 ////////////////////////////////////////////////////////////////
 
@@ -32,27 +39,10 @@ public:
 
 	void Update() override;
 
-	template<class T>
-	void SendDataToUser(CSteamID recipientId, T data, int nSendFlags)
-	{
-		SteamNetworkingIdentity recipientNetworkingIdentity;
-		recipientNetworkingIdentity.SetSteamID(recipientId);
-
-		EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, &data, sizeof(data), nSendFlags, DataStructuresChannelEnum::SampleMessageDataChannel);
-	}
-
-	template<class T>
-	void SendDataToAllLobby(T data, int nSendFlags)
-	{
-		std::vector<CSteamID> recipients = popGetLobbyManager()->GetCurrentLobbyPlayerList();
-		for (const CSteamID id : recipients)
-		{
-			SteamNetworkingIdentity recipientNetworkingIdentity;
-			recipientNetworkingIdentity.SetSteamID(id);
-
-			EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, &data, sizeof(data), nSendFlags, DataStructuresChannelEnum::BackgroundColorDataChannel);
-		}
-	}
+	void SendDataToUser(CSteamID recipientId, std::string message);
+	void SendDataToAllLobby(BackgroundColorData data);
+	void SendPlayerPositionDataToAllLobby(std::unordered_map<uint64, PlayerPositionData> data);
+	void SendCurrentPlayerPositionDataToLobbyOwner(PlayerPositionData data);
 
 	std::vector<std::pair<CSteamID, std::string>>& GetIncomingMessageQueue() { return m_incomingMessageQueue; }
 
