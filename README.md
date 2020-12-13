@@ -13,5 +13,5 @@ Every library used are on the repo and mapped in Visual Studio dynamically. It s
 # AppId
 The AppId used is the one from SpaceWars => 480
 
-#Licenses
+# Licenses
 Icons for avatars made by Freepik from www.flaticon.com
