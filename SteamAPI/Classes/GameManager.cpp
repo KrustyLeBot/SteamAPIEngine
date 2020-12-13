@@ -47,9 +47,6 @@ void GameManager::Update()
 		}
 	}
 
-	DrawStaticElements();
-	DrawDynamicElements();
-
 	if (m_gameStarted)
 	{
 		//If we have more position than players, clean the map
@@ -73,8 +70,6 @@ void GameManager::Update()
 			}
 		}
 
-		DrawDynamicElements();
-
 		if (!m_timer.IsStarted() || m_timer.GetElapsedTimeMs() >= int(1000.0 / TICK_RATE_SERVER))
 		{
 			popGetNetworkManager()->SendDataToAllLobby(popGetGameManager()->GetBackgroundData());
@@ -94,6 +89,15 @@ void GameManager::Update()
 			m_timer.Start();
 		}
 	}
+
+	// Handle Draw items at the end of the update
+	DrawStaticElements();
+
+	if (m_gameStarted)
+	{
+		DrawDynamicElements();
+	}
+
 }
 
 void GameManager::StartGame()
