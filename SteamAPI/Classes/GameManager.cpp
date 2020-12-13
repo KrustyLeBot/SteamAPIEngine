@@ -25,7 +25,7 @@ void GameManager::Update()
 	if (m_position.playerId == CSteamID())
 	{
 		m_position.playerId = SteamUser()->GetSteamID();
-		m_position.sprite = 666;
+		m_position.sprite = 0;
 	}
 	
 	SetGameStarting(popGetLobbyManager()->GetLobbyMetadata(GAME_STARTING_METADATA_KEY));
