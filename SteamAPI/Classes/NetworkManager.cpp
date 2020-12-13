@@ -82,12 +82,15 @@ void NetworkManager::SendDataToUser(CSteamID recipientId, std::string message)
 
 void NetworkManager::SendDataToAllLobby(BackgroundColorData data)
 {
-	std::vector<CSteamID> recipients = popGetLobbyManager()->GetCurrentLobbyPlayerList();
+	std::vector<CSteamID>& recipients = popGetLobbyManager()->GetCurrentLobbyPlayerList();
 	for (const CSteamID id : recipients)
 	{
-		SteamNetworkingIdentity recipientNetworkingIdentity;
-		recipientNetworkingIdentity.SetSteamID(id);
-		EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, &data, sizeof(BackgroundColorData), k_EP2PSendUnreliable, DataStructuresChannelEnum::BackgroundColorDataChannel);
+		if (id != SteamUser()->GetSteamID())
+		{
+			SteamNetworkingIdentity recipientNetworkingIdentity;
+			recipientNetworkingIdentity.SetSteamID(id);
+			EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, &data, sizeof(BackgroundColorData), k_EP2PSendUnreliable, DataStructuresChannelEnum::BackgroundColorDataChannel);
+		}
 	}
 }
 
@@ -95,21 +98,28 @@ void NetworkManager::SendPlayerPositionDataToAllLobby(std::unordered_map<uint64,
 {
 	const int length = data.size();
 	
-	PlayerPositionData allocatedMemory[LOBBY_MAX_PLAYERS];
+	PlayerPositionData* allocatedMemory = (PlayerPositionData*)malloc(sizeof(PlayerPositionData) * length);
 	int counter = 0;
-	for (auto& pos : data)
+	for (const auto& pos : data)
 	{
 		allocatedMemory[counter] = pos.second;
+		counter++;
 	}
 
-	std::vector<CSteamID> recipients = popGetLobbyManager()->GetCurrentLobbyPlayerList();
+	int test = sizeof(PlayerPositionData);
+
+	std::vector<CSteamID>& recipients = popGetLobbyManager()->GetCurrentLobbyPlayerList();
 	for (const CSteamID id : recipients)
 	{
-		SteamNetworkingIdentity recipientNetworkingIdentity;
-		recipientNetworkingIdentity.SetSteamID(id);
+		if (id != SteamUser()->GetSteamID())
+		{
+			SteamNetworkingIdentity recipientNetworkingIdentity;
+			recipientNetworkingIdentity.SetSteamID(id);
 
-		EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, allocatedMemory, sizeof(PlayerPositionData) * min(length, LOBBY_MAX_PLAYERS), k_EP2PSendUnreliable, DataStructuresChannelEnum::PlayerPositionDataChannel);
+			EResult result = SteamNetworkingMessages()->SendMessageToUser(recipientNetworkingIdentity, allocatedMemory, sizeof(PlayerPositionData) * length, k_EP2PSendUnreliable, DataStructuresChannelEnum::PlayerPositionDataChannel);
+		}
 	}
+	free(allocatedMemory);
 }
 
 void NetworkManager::SendCurrentPlayerPositionDataToLobbyOwner(PlayerPositionData data)

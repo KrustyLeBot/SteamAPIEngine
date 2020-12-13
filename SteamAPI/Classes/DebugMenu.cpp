@@ -63,6 +63,17 @@ void DrawLobbyDebugMenu()
 	stringStream << "Current lobby id: " << popGetLobbyManager()->GetCurrentLobby().ConvertToUint64();
 	ImGui::Text(stringStream.str().c_str());
 
+	//Show start time for debug purpose
+	std::stringstream stringStream2;
+	stringStream2 << "Start time: " << popGetLobbyManager()->GetLobbyMetadata("game_start_timestamp");
+	ImGui::Text(stringStream2.str().c_str());
+
+	//Show local player positions
+	std::stringstream stringStream3;
+	PlayerPositionData& pos = popGetGameManager()->GetPlayerPosition();
+	stringStream3 << "Position: x->" << pos.posX << ", y->" << pos.posY;
+	ImGui::Text(stringStream3.str().c_str());
+
 	//Leave current lobby
 	if (popGetLobbyManager()->IsCurrentLobbyValid() && ImGui::Button("Leave lobby"))
 	{
@@ -70,10 +81,16 @@ void DrawLobbyDebugMenu()
 	}
 
 	//Show all player in the lobby
-	std::vector<CSteamID> playerList = popGetLobbyManager()->GetCurrentLobbyPlayerList();
+	std::vector<CSteamID>& playerList = popGetLobbyManager()->GetCurrentLobbyPlayerList();
 	for (const auto player : playerList)
 	{
-		ImGui::Text(SteamFriends()->GetFriendPersonaName(player));
+		if (player != SteamUser()->GetSteamID())
+		{
+			std::stringstream stringStream4;
+			PlayerPositionData pos2 = popGetGameManager()->GetPlayerPosition(player);
+			stringStream4 << SteamFriends()->GetFriendPersonaName(player) << ", Position: x->" << pos2.posX << ", y->" << pos2.posY;
+			ImGui::Text(stringStream4.str().c_str());
+		}
 	}
 
 	//If we are lobby owner => show slider for background color

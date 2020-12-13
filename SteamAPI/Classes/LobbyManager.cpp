@@ -26,11 +26,8 @@ void LobbyManager::Update()
 		for (int index = 0; index < lobbyPlayerCount; index++)
 		{
 			CSteamID id = SteamMatchmaking()->GetLobbyMemberByIndex(m_currentLobby, index);
-			if (id != SteamUser()->GetSteamID())
-			{
-				m_playerList.push_back(id);
-				popGetFriendsManager()->AddPlayerToCache(id);
-			}
+			m_playerList.push_back(id);
+			popGetFriendsManager()->AddPlayerToCache(id);
 		}
 
 		m_timer.Reset();

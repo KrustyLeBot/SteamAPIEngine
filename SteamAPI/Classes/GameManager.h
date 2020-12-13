@@ -13,7 +13,6 @@ public:
 
 	void Update() override;
 	void SetRenderWindow(sf::RenderWindow* renderWindow) { m_renderWindow = renderWindow; }
-	void DrawStaticElements();
 	void SetBackgroundData(BackgroundColorData data) { m_bgData = data; }
 	void SetBackgroundData(int R, int G, int B) { m_bgData.R = R; m_bgData.G = G; m_bgData.B = B; }
 	void StartGame();
@@ -22,10 +21,15 @@ public:
 	bool IsGameStarting() { return m_gameStarting; }
 	void SetPlayerPosition(PlayerPositionData data);
 	PlayerPositionData& GetPlayerPosition() { return m_position; }
+	PlayerPositionData GetPlayerPosition(CSteamID player) { return m_lobbyPlayerPositions[player.ConvertToUint64()]; }
+	std::unordered_map<uint64, PlayerPositionData>& GetLobbyPlayerPositions() { return m_lobbyPlayerPositions; }
 	BackgroundColorData& GetBackgroundData() { return m_bgData; }
 
 private:
 	void SetGameStarting(std::string value);
+	void UpdatePlayerPosition();
+	void DrawStaticElements();
+	void DrawDynamicElements();
 
 private:
 	sf::RenderWindow* m_renderWindow;

@@ -13,10 +13,10 @@ public:
 
 	void Update() override;
 	bool IsCurrentLobbyValid();
-	CSteamID GetCurrentLobby() { return m_currentLobby; }
+	CSteamID& GetCurrentLobby() { return m_currentLobby; }
 	void InviteFriendToCurrentLobby(CSteamID playerId);
 	void LeaveCurrentLobby();
-	std::vector<CSteamID> GetCurrentLobbyPlayerList() { return m_playerList; }
+	std::vector<CSteamID>& GetCurrentLobbyPlayerList() { return m_playerList; }
 	bool IsLocalPlayerCurrentLobbyOwner();
 	bool IsPlayerInCurrentLobby(CSteamID playerId);
 	void SetLobbyMetadata(std::string key, std::string value);
