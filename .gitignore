@@ -350,3 +350,5 @@ MigrationBackup/
 .ionide/
 
 SteamAPI/imgui.ini
+
+SteamAPI/Assets/avatars/Thumbs.db
